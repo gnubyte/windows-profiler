@@ -4,7 +4,7 @@ on:
   push:
     branches: [main]
     tags:
-      - 'v*'  # Matches tags like "v1.0", "v2.1", etc.
+      - 'v*'
 
   pull_request:
     branches: [main]
@@ -61,8 +61,10 @@ jobs:
           pip install nuitka tk psutil wmi pywin32 deepdiff customtkinter
 
       - name: Build executable with Nuitka
+        env:
+          NUITKA_DOWNLOAD_DEPENDS: "yes"  # Automatically allow Dependency Walker download
         run: |
-          python -m nuitka --standalone --onefile --disable-console --output-filename=windowsprofiler.exe --enable-plugin=tk-inter main.py
+          python -m nuitka --standalone --onefile --windows-console-mode=disable --output-filename=windowsprofiler.exe --enable-plugin=tk-inter main.py
 
       - name: Upload executable as artifact
         uses: actions/upload-artifact@v3

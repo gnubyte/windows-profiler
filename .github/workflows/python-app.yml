@@ -1,15 +1,18 @@
-name: Python application
+name: Python Application CI
 
 on:
   push:
     branches: [main]
+    tags:     # Add this to trigger the workflow on tag creation
+      - 'v*'  # Matches tags like "v1.0", "v2.1", etc.
+
   pull_request:
     branches: [main]
 
 jobs:
   test:
-    runs-on: windows-latest  # Choose 'windows-latest' to align with the Windows dependencies
-    
+    runs-on: windows-latest
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
@@ -19,23 +22,73 @@ jobs:
         with:
           python-version: '3.x'
 
+      - name: Install pip if missing
+        run: |
+          python -m ensurepip --upgrade
+          python -m pip install --upgrade pip
+
       - name: Install dependencies
         run: |
-          python -m pip install --upgrade pip
-          pip install -r requirements.txt
+          if (Test-Path -Path "requirements.txt") {
+            pip install -r requirements.txt
+          } else {
+            echo "requirements.txt not found."
+          }
 
       - name: Run tests
-        run: |
-          python -m unittest discover -s tests
-      - name: Run tests and generate coverage report
-        run: |
-          coverage run -m unittest discover -s tests
-          coverage report
-          coverage xml
+        run: python -m unittest discover -s tests
 
-      - name: Upload test results
-        if: failure()
+  build:
+    runs-on: windows-latest
+    needs: test  # Ensures build only happens if tests pass
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.x'
+
+      - name: Install pip if missing
+        run: |
+          python -m ensurepip --upgrade
+          python -m pip install --upgrade pip
+
+      - name: Install dependencies for Nuitka build
+        run: |
+          pip install nuitka tk psutil wmi pywin32 deepdiff customtkinter
+
+      - name: Build executable with Nuitka
+        run: |
+          python -m nuitka --standalone --onefile --disable-console --output-filename=windowsprofiler.exe --enable-plugin=tk-inter main.py
+
+      - name: Upload executable as artifact
         uses: actions/upload-artifact@v3
         with:
-          name: test-results
-          path: test-reports
+          name: windowsprofiler.exe
+          path: windowsprofiler.exe
+
+      - name: Create GitHub Release
+        id: create_release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ github.ref_name }}
+          release_name: "Release ${{ github.ref_name }}"
+          draft: false
+          prerelease: false
+        if: startsWith(github.ref, 'refs/tags/')
+
+      - name: Upload to Release
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ./windowsprofiler.exe
+          asset_name: windowsprofiler.exe
+          asset_content_type: application/octet-stream
+        if: startsWith(github.ref, 'refs/tags/')

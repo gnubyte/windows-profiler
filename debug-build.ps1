@@ -1,0 +1,1 @@
+python -m nuitka --standalone --onefile  --output-filename=windowsprofiler.exe --enable-plugin=tk-inter  main.py

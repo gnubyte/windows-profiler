@@ -1,5 +1,8 @@
 # User Settings Profiler
 
+![Test Status](https://github.com/gnubyte/windows-profiler/actions/workflows/python-app.yml/badge.svg)
+
+
 A Python-based GUI application for profiling and comparing system configurations, browser settings, installed software, printers, and mapped network drives on a Windows machine. Built with [CustomTkinter](https://github.com/TomSchimansky/CustomTkinter) for a modern dark theme and enhanced usability.
 
 ## Features

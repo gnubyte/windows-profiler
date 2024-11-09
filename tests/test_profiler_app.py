@@ -1,6 +1,7 @@
 import unittest
 import json
-from profiler_app import ProfileApp
+from main import ProfileApp
+
 
 class TestProfileApp(unittest.TestCase):
     def setUp(self):

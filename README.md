@@ -5,7 +5,7 @@
 
 A Python-based GUI application for profiling and comparing system configurations, browser settings, installed software, printers, and mapped network drives on a Windows machine. Built with [CustomTkinter](https://github.com/TomSchimansky/CustomTkinter) for a modern dark theme and enhanced usability.
 
-![Screenshot of software](./"2025-01-09 09_21_19-Release V1.0.0 · gnubyte_windows-profiler — Mozilla Firefox.png")
+![Screenshot of software](https://github.com/gnubyte/windows-profiler/blob/main/2025-01-09%2009_21_19-Release%20V1.0.0%20%C2%B7%20gnubyte_windows-profiler%20%E2%80%94%20Mozilla%20Firefox.png?raw=true)
 
 
 ## Features
